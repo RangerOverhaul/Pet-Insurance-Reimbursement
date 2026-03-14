@@ -1,5 +1,5 @@
 """
-WSGI config for PetInsuranceReimbursement project.
+WSGI config for pet_insurance project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'PetInsuranceReimbursement.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'pet_insurance.settings')
 
 application = get_wsgi_application()
