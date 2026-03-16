@@ -54,3 +54,10 @@ export const claimsApi = {
   review: (id, d) => api.patch('/claims/' + id + '/review/', d),
   pendingReview: () => api.get('/claims/pending-review/'),
 }
+
+export const usersApi = {
+  list: () => api.get('/auth/admin/users/'),
+  create: d => api.post('/auth/admin/users/', d),
+  update: (id, d) => api.put('/auth/admin/users/' + id + '/', d),
+  destroy: id => api.delete('/auth/admin/users/' + id + '/'),
+}

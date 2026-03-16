@@ -14,7 +14,7 @@
         <nav class="sidebar-nav">
           <RouterLink to="/pets" class="nav-link">
             <span class="nav-icon">🐶</span>
-            <span>Mis Mascotas</span>
+            <span>{{ auth.isStaff ? "Todas las Mascotas" : "Mis Mascotas" }}</span>
           </RouterLink>
           <RouterLink to="/claims" class="nav-link">
             <span class="nav-icon">📋</span>
@@ -24,6 +24,13 @@
             <span class="nav-icon">🔍</span>
             <span>Cola de Revisión</span>
             <span v-if="pendingCount > 0" class="nav-badge">{{ pendingCount }}</span>
+          </RouterLink>
+
+          <!-- Separador y sección Admin -->
+          <div v-if="auth.isAdmin" class="nav-separator">Admin</div>
+          <RouterLink v-if="auth.isAdmin" to="/admin/users" class="nav-link nav-link--admin">
+            <span class="nav-icon">👥</span>
+            <span>Gestión de Usuarios</span>
           </RouterLink>
         </nav>
       </div>
@@ -133,4 +140,21 @@ function handleLogout() {
 .staff-bar { background: linear-gradient(90deg, #1e1b4b 0%, #312e81 100%); color: #c7d2fe; padding: 8px 24px; font-size: 12px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .staff-bar strong { color: #e0e7ff; }
 .staff-bar-icon { font-size: 1rem; }
+
+.nav-separator {
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: #6366f1;
+  padding: 14px 10px 4px;
+  opacity: .7;
+}
+.nav-link--admin {
+  border: 1px dashed rgba(255,255,255,.15);
+}
+.nav-link--admin.router-link-active {
+  background: rgba(255,255,255,.15);
+  border-color: transparent;
+}
 </style>

@@ -13,6 +13,7 @@ const routes = [
       { path: 'pets', component: () => import('@/views/PetsView.vue') },
       { path: 'claims', component: () => import('@/views/ClaimsView.vue') },
       { path: 'review', component: () => import('@/views/ReviewView.vue'), meta: { staffOnly: true } },
+      { path: 'admin/users', component: () => import('@/views/AdminUsersView.vue'), meta: { adminOnly: true } },
     ],
   },
 ]
@@ -30,6 +31,7 @@ router.beforeEach(async (to) => {
     try { await auth.fetchMe() } catch { auth.logout(); return '/login' }
   }
   if (to.meta.staffOnly && !auth.isStaff) return '/'
+  if (to.meta.adminOnly && !auth.isAdmin) return '/'
 })
 
 export default router
