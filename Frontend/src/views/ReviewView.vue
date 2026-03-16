@@ -57,6 +57,22 @@
             <span class="meta-val font-mono">{{ fmtDate(claim.date_of_event) }}</span>
           </div>
           <div class="meta-item">
+            <span class="meta-label">Banco</span>
+            <span class="meta-val">{{ claim.bank_display }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Cuenta</span>
+            <span class="meta-val font-mono">{{ claim.account_number }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Titular</span>
+            <span class="meta-val">{{ claim.owner_full_name || '—' }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Documento</span>
+            <span class="meta-val font-mono">{{ claim.owner_document || '—' }}</span>
+          </div>
+          <div class="meta-item">
             <span class="meta-label">Factura</span>
             <span class="meta-val font-mono">{{ fmtDate(claim.invoice_date) }}</span>
           </div>

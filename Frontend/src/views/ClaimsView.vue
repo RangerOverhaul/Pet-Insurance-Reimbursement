@@ -74,37 +74,62 @@
           <h2>Nuevo reclamo</h2>
           <button class="btn btn-ghost btn-sm" @click="showCreate = false">✕</button>
         </div>
-        <div class="modal-body">
-          <div v-if="formError" class="alert alert-error">{{ formError }}</div>
-          <div v-if="formSuccess" class="alert alert-success">{{ formSuccess }}</div>
 
+      <div class="modal-body">
+        <div v-if="formError" class="alert alert-error">{{ formError }}</div>
+        <div v-if="formSuccess" class="alert alert-success">{{ formSuccess }}</div>
+
+        <div class="form-group">
+          <label class="form-label">Mascota</label>
+          <select v-model="newClaim.pet" class="form-select" required>
+            <option value="">Selecciona una mascota</option>
+            <option v-for="p in myPets" :key="p.id" :value="p.id">{{ p.name }} ({{ speciesLabel(p.species) }})</option>
+          </select>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
           <div class="form-group">
-            <label class="form-label">Mascota</label>
-            <select v-model="newClaim.pet" class="form-select" required>
-              <option value="">Selecciona una mascota</option>
-              <option v-for="p in myPets" :key="p.id" :value="p.id">{{ p.name }} ({{ speciesLabel(p.species) }})</option>
-            </select>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="form-group">
-              <label class="form-label">Fecha del evento</label>
-              <input v-model="newClaim.date_of_event" type="date" class="form-input" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label">Fecha de la factura</label>
-              <input v-model="newClaim.invoice_date" type="date" class="form-input" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Monto ($)</label>
-            <input v-model="newClaim.amount" type="number" step="0.01" min="0" class="form-input" placeholder="0.00" required />
+            <label class="form-label">Fecha del evento</label>
+            <input v-model="newClaim.date_of_event" type="date" class="form-input" required />
           </div>
           <div class="form-group">
-            <label class="form-label">Factura (PDF / imagen)</label>
-            <input type="file" accept=".pdf,.jpg,.jpeg,.png" class="form-input" @change="onFile" required />
-            <span class="form-error" style="color:var(--c-text-muted)">Se verificará que no sea una factura duplicada</span>
+            <label class="form-label">Fecha de la factura</label>
+            <input v-model="newClaim.invoice_date" type="date" class="form-input" required />
           </div>
         </div>
+
+        <div class="form-group">
+          <label class="form-label">Monto ($)</label>
+          <input v-model="newClaim.amount" type="number" step="0.01" min="0" class="form-input" placeholder="0.00" required />
+        </div>
+
+        <!-- Datos bancarios -->
+        <div class="section-divider">Datos para el reembolso</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="form-group">
+            <label class="form-label">Banco</label>
+            <select v-model="newClaim.bank" class="form-select" required>
+              <option value="">Selecciona un banco</option>
+              <option value="BANCO_NORTE">Banco Norte</option>
+              <option value="CREDIFUTURO">CrediFuturo</option>
+              <option value="BANCO_CAPITAL">Banco Capital</option>
+              <option value="FINANZAS_DEL_SUR">Finanzas del Sur</option>
+              <option value="EUROBANK_LOCAL">Eurobank Local</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Número de cuenta</label>
+            <input v-model="newClaim.account_number" class="form-input" placeholder="Ej: 0012345678" required />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Factura (PDF / imagen)</label>
+          <input type="file" accept=".pdf,.jpg,.jpeg,.png" class="form-input" @change="onFile" required />
+          <span class="form-error" style="color:var(--c-text-muted)">Se verificará que no sea una factura duplicada</span>
+        </div>
+    </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" @click="showCreate = false">Cancelar</button>
           <button class="btn btn-primary" :disabled="saving" @click="submitClaim">
@@ -127,6 +152,15 @@
             <div class="detail-row"><span>Mascota</span><strong>{{ detail.pet_name }}</strong></div>
             <div v-if="auth.isStaff" class="detail-row"><span>Cliente</span><strong>{{ detail.owner_email }}</strong></div>
             <div class="detail-row"><span>Monto</span><strong class="font-mono">${{ Number(detail.amount).toLocaleString("es-CO") }}</strong></div>
+            <div class="detail-row"><span>Banco</span><strong>{{ detail.bank_display }}</strong></div>
+            <div class="detail-row"><span>Cuenta</span><span class="font-mono">{{ detail.account_number }}</span></div>
+            <div v-if="detail.owner_full_name" class="detail-row"><span>Titular</span><strong>{{ detail.owner_full_name }}</strong></div>
+            <div v-if="detail.owner_document" class="detail-row"><span>Documento</span><span class="font-mono">{{ detail.owner_document }}</span></div>
+            <div v-if="detail.owner_phone" class="detail-row"><span>Teléfono</span><span>{{ detail.owner_phone }}</span></div>
+            <div v-if="detail.reviewed_by_email" class="detail-row">
+              <span>Revisado por</span>
+              <span class="reviewer-chip">{{ detail.reviewed_by_email }}</span>
+            </div>
             <div class="detail-row"><span>Fecha evento</span><span class="font-mono">{{ fmtDate(detail.date_of_event) }}</span></div>
             <div class="detail-row"><span>Fecha factura</span><span class="font-mono">{{ fmtDate(detail.invoice_date) }}</span></div>
             <div class="detail-row"><span>Estado</span><span class="badge" :class="'badge-' + detail.status.toLowerCase()">{{ statusLabel(detail.status) }}</span></div>
@@ -178,8 +212,10 @@ const formError = ref("")
 const formSuccess = ref("")
 const reviewError = ref("")
 const reviewNotes = ref("")
-const newClaim = ref({ pet: "", date_of_event: "", invoice_date: "", amount: "", invoice: null })
-
+const newClaim = ref({
+  pet: "", date_of_event: "", invoice_date: "",
+  amount: "", invoice: null, bank: "", account_number: ""
+})
 async function loadClaims() {
   loading.value = true
   try {
@@ -206,6 +242,8 @@ function onFile(e) { newClaim.value.invoice = e.target.files[0] }
 
 async function submitClaim() {
   if (!newClaim.value.invoice) { formError.value = "Debes adjuntar la factura"; return }
+  if (!newClaim.value.bank) { formError.value = "Selecciona un banco"; return }
+  if (!newClaim.value.account_number) { formError.value = "Ingresa el número de cuenta"; return }
   saving.value = true
   formError.value = ""
   formSuccess.value = ""
@@ -277,4 +315,25 @@ onMounted(loadClaims)
 .detail-row > span:first-child { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--c-text-muted); font-weight: 600; }
 .review-section { margin-top: 20px; padding-top: 20px; border-top: 2px dashed var(--c-border); }
 .review-section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--c-text-muted); margin-bottom: 4px; }
+
+.section-divider {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--c-text-muted);
+  border-top: 1px solid var(--c-border);
+  padding-top: 14px;
+  margin-bottom: 14px;
+  margin-top: 4px;
+}
+
+.reviewer-chip {
+  background: var(--c-accent-light);
+  color: var(--c-accent);
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
 </style>

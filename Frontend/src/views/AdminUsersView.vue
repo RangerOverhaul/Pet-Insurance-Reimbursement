@@ -92,6 +92,21 @@
               <option value="ADMIN">ADMIN — Administrador</option>
             </select>
           </div>
+          <div class="section-divider">Datos personales</div>
+          <div class="form-group">
+            <label class="form-label">Nombre completo</label>
+            <input v-model="form.full_name" class="form-input" placeholder="Nombre y apellidos" />
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div class="form-group">
+              <label class="form-label">Número de documento</label>
+              <input v-model="form.document_number" class="form-input" placeholder="Ej: 1234567890" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Teléfono</label>
+              <input v-model="form.phone_number" class="form-input" placeholder="Ej: 3001234567" />
+            </div>
+          </div>
           <div class="form-group">
             <label class="form-label">{{ editing ? 'Nueva contraseña (dejar vacío para no cambiar)' : 'Contraseña' }}</label>
             <input v-model="form.password" type="password" class="form-input" :placeholder="editing ? 'Sin cambios' : 'Mínimo 8 caracteres'" :required="!editing" />
@@ -154,7 +169,7 @@ const formError = ref('')
 const toast = ref(null)
 const currentUserId = computed(() => auth.user?.id)
 
-const form = ref({ email: '', role: 'CUSTOMER', password: '', is_active: true })
+const form = ref({ email: '', role: 'SUPPORT', password: '', is_active: true, full_name: '', document_number: '', phone_number: '' })
 
 const stats = computed(() => [
   { label: 'Total usuarios', val: users.value.length },
@@ -173,14 +188,17 @@ async function loadUsers() {
 
 function openCreate() {
   editing.value = null
-  form.value = { email: '', role: 'SUPPORT', password: '', is_active: true }
+  form.value = { email: '', role: 'SUPPORT', password: '', is_active: true, full_name: '', document_number: '', phone_number: '' }
   formError.value = ''
   showModal.value = true
 }
 
 function openEdit(u) {
   editing.value = u
-  form.value = { email: u.email, role: u.role, password: '', is_active: u.is_active }
+  form.value = {
+    email: u.email, role: u.role, password: '', is_active: u.is_active,
+    full_name: u.full_name || '', document_number: u.document_number || '', phone_number: u.phone_number || ''
+  }
   formError.value = ''
   showModal.value = true
 }
