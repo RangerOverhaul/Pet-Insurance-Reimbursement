@@ -47,7 +47,7 @@ async function handleLogin() {
   loading.value = true
   try {
     await auth.login(form.value.email, form.value.password)
-    router.push("/")
+    await router.push("/pets")
   } catch (e) {
     error.value = e.response?.data?.detail || "Credenciales inválidas"
   } finally {

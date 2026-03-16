@@ -23,7 +23,7 @@
           <label class="form-label">Confirmar contraseña</label>
           <input v-model="form.password2" type="password" class="form-input" placeholder="Repite tu contraseña" required />
         </div>
-        <!-- ← el select de rol fue eliminado -->
+
         <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center" :disabled="loading">
           <span v-if="loading" class="spinner" style="width:14px;height:14px"></span>
           <span>{{ loading ? "Registrando..." : "Crear cuenta" }}</span>
