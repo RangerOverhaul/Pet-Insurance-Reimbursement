@@ -27,6 +27,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     email = models.EmailField(unique=True)
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.CUSTOMER)
+
+    # Datos personales
+    full_name = models.CharField(max_length=150, blank=True, default="")
+    document_number = models.CharField(max_length=30, blank=True, default="")
+    phone_number = models.CharField(max_length=20, blank=True, default="")
+
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)

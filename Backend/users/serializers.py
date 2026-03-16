@@ -23,17 +23,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "email", "role", "date_joined"]
+        fields = ["id", "email", "role", "full_name", "document_number", "phone_number", "date_joined"]
         read_only_fields = ["id", "date_joined"]
 
 
 class AdminUserSerializer(serializers.ModelSerializer):
-    """Usado por ADMIN para crear/editar usuarios con cualquier rol."""
     password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
 
     class Meta:
         model = User
-        fields = ["id", "email", "password", "role", "is_active", "date_joined"]
+        fields = ["id", "email", "password", "role", "full_name", "document_number", "phone_number", "is_active", "date_joined"]
         read_only_fields = ["id", "date_joined"]
 
     def create(self, validated_data):
