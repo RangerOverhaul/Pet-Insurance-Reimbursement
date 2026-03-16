@@ -23,13 +23,7 @@
           <label class="form-label">Confirmar contraseña</label>
           <input v-model="form.password2" type="password" class="form-input" placeholder="Repite tu contraseña" required />
         </div>
-        <div class="form-group">
-          <label class="form-label">Tipo de cuenta</label>
-          <select v-model="form.role" class="form-select">
-            <option value="CUSTOMER">Cliente (dueño de mascota)</option>
-            <option value="SUPPORT">Soporte</option>
-          </select>
-        </div>
+        <!-- ← el select de rol fue eliminado -->
         <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center" :disabled="loading">
           <span v-if="loading" class="spinner" style="width:14px;height:14px"></span>
           <span>{{ loading ? "Registrando..." : "Crear cuenta" }}</span>
@@ -50,7 +44,7 @@ import { useAuthStore } from "@/stores/auth"
 
 const router = useRouter()
 const auth = useAuthStore()
-const form = ref({ email: "", password: "", password2: "", role: "CUSTOMER" })
+const form = ref({ email: "", password: "", password2: "" })  // ← sin role
 const loading = ref(false)
 const error = ref("")
 const success = ref("")
