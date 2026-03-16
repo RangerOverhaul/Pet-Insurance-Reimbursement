@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Pet
+from users.models import User
 
 
 class PetSerializer(serializers.ModelSerializer):
@@ -13,7 +14,7 @@ class PetSerializer(serializers.ModelSerializer):
             "birth_date", "coverage_start", "coverage_end",
             "is_coverage_active", "created_at",
         ]
-        read_only_fields = ["id", "owner", "coverage_end", "created_at"]
+        read_only_fields = ["id", "coverage_end", "created_at"]
 
     def validate_birth_date(self, value):
         from django.utils import timezone
@@ -21,8 +22,15 @@ class PetSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Birth date cannot be in the future.")
         return value
 
-    def validate_coverage_start(self, value):
-        from django.utils import timezone
-        if value < timezone.now().date():
-            raise serializers.ValidationError("Coverage start date cannot be in the past.")
-        return value
+    def validate(self, attrs):
+        request = self.context.get("request")
+        # Solo validar coverage_start en creación para customers
+        if request and not self.instance:
+            from django.utils import timezone
+            coverage_start = attrs.get("coverage_start")
+            if request.user.role == User.Role.CUSTOMER and coverage_start:
+                if coverage_start < timezone.now().date():
+                    raise serializers.ValidationError(
+                        {"coverage_start": "Coverage start date cannot be in the past."}
+                    )
+        return attrs

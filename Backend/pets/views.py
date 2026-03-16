@@ -16,4 +16,11 @@ class PetViewSet(viewsets.ModelViewSet):
         return Pet.objects.filter(owner=user).order_by("-created_at")
 
     def perform_create(self, serializer):
-        serializer.save(owner=self.request.user)
+        # SUPPORT/ADMIN pueden pasar owner_id explícito; CUSTOMER siempre es el suyo
+        user = self.request.user
+        if user.role in [User.Role.SUPPORT, User.Role.ADMIN]:
+            owner_id = self.request.data.get("owner")
+            if owner_id:
+                serializer.save(owner_id=owner_id)
+                return
+        serializer.save(owner=user)
