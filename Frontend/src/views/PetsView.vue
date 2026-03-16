@@ -20,6 +20,7 @@
         <div class="stat-val">{{ pets.filter(p => p.is_coverage_active).length }}</div>
         <div class="stat-label">Cobertura activa</div>
       </div>
+       <!-- Estadísticas por especie -->
       <div class="stat-card">
         <div class="stat-val">{{ pets.filter(p => p.species === "DOG").length }}</div>
         <div class="stat-label">Perros</div>
@@ -27,6 +28,46 @@
       <div class="stat-card">
         <div class="stat-val">{{ pets.filter(p => p.species === "CAT").length }}</div>
         <div class="stat-label">Gatos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "BIRD").length }}</div>
+        <div class="stat-label">Pájaros</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "FISH").length }}</div>
+        <div class="stat-label">Peces</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "RABBIT").length }}</div>
+        <div class="stat-label">Conejos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "HAMSTER").length }}</div>
+        <div class="stat-label">Hámsters</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "GUINEA_PIG").length }}</div>
+        <div class="stat-label">Cobayas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "TURTLE").length }}</div>
+        <div class="stat-label">Tortugas</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "FERRET").length }}</div>
+        <div class="stat-label">Hurones</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "SNAKE").length }}</div>
+        <div class="stat-label">Serpientes</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "LIZARD").length }}</div>
+        <div class="stat-label">Lagartos</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val">{{ pets.filter(p => p.species === "OTHER").length }}</div>
+        <div class="stat-label">Otros</div>
       </div>
     </div>
 
@@ -97,9 +138,18 @@
           <div class="form-group">
             <label class="form-label">Especie</label>
             <select v-model="form.species" class="form-select">
-              <option value="DOG">🐕 Perro</option>
-              <option value="CAT">🐈 Gato</option>
-              <option value="OTHER">🐾 Otro</option>
+                <option value="DOG">Perro</option>
+                <option value="CAT">Gato</option>
+                <option value="BIRD">Pájaro</option>
+                <option value="FISH">Pez</option>
+                <option value="RABBIT">Conejo</option>
+                <option value="HAMSTER">Hámster</option>
+                <option value="GUINEA_PIG">Cobaya</option>
+                <option value="TURTLE">Tortuga</option>
+                <option value="FERRET">Hurón</option>
+                <option value="SNAKE">Serpiente</option>
+                <option value="LIZARD">Lagarto</option>
+                <option value="OTHER">Otro</option>
             </select>
           </div>
           <div class="form-group">
@@ -206,7 +256,20 @@ async function doDelete() {
   } finally { saving.value = false }
 }
 
-const speciesLabel = s => ({ DOG: "Perro", CAT: "Gato", OTHER: "Otro" }[s] || s)
+const speciesLabel = s => ({
+    DOG: "Perro",
+    CAT: "Gato", 
+    BIRD: "Pájaro",
+    FISH: "Pez",
+    RABBIT: "Conejo",
+    HAMSTER: "Hámster",
+    GUINEA_PIG: "Cobaya",
+    TURTLE: "Tortuga",
+    FERRET: "Hurón",
+    SNAKE: "Serpiente",
+    LIZARD: "Lagarto",
+    OTHER: "Otro"
+}[s] || s)
 const fmtDate = d => d ? new Date(d + "T00:00:00").toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) : "-"
 
 onMounted(loadPets)

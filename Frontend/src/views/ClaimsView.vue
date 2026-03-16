@@ -246,7 +246,20 @@ const statusLabel = s => ({
   SUBMITTED: "Enviado", PROCESSING: "Procesando", IN_REVIEW: "En revisión",
   APPROVED: "Aprobado", REJECTED: "Rechazado"
 }[s] || s)
-const speciesLabel = s => ({ DOG: "Perro", CAT: "Gato", OTHER: "Otro" }[s] || s)
+const speciesLabel = s => ({
+    DOG: "Perro",
+    CAT: "Gato", 
+    BIRD: "Pájaro",
+    FISH: "Pez",
+    RABBIT: "Conejo",
+    HAMSTER: "Hámster",
+    GUINEA_PIG: "Cobaya",
+    TURTLE: "Tortuga",
+    FERRET: "Hurón",
+    SNAKE: "Serpiente",
+    LIZARD: "Lagarto",
+    OTHER: "Otro"
+}[s] || s)
 const fmtDate = d => d ? new Date(d + "T00:00:00").toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" }) : "-"
 const fmtDatetime = d => d ? new Date(d).toLocaleString("es-CO", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "-"
 
