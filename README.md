@@ -1,6 +1,6 @@
 # 🐾 Pet Insurance Reimbursement Platform
 
-Plataforma full stack de reembolso de seguros para mascotas.  
+Full stack platform for pet insurance reimbursements.  
 **Backend**: Django REST Framework · **Frontend**: Vue.js 3
 ```
 Pet Insurance Reimbursement/
@@ -10,11 +10,18 @@ Pet Insurance Reimbursement/
 └── README.md
 ```
 
-## Opción A — Correr con Docker Compose (recomendado)
+## Additional Documentation
 
-### 1. Configurar el proxy del frontend para Docker
+- [Backend README](./backend/README.md) — models, endpoints, tests, business rules
+- [Frontend README](./frontend/README.md) — proxy setup, structure, role-based UI differences
 
-En `frontend/vite.config.js` asegúrate de tener:
+---
+
+## Option A — Run with Docker Compose (recommended)
+
+### 1. Configure the frontend proxy for Docker
+
+In `frontend/vite.config.js` make sure you have:
 ```js
 server: {
   proxy: {
@@ -26,32 +33,32 @@ server: {
 }
 ```
 
-### 2. Levantar los servicios
+### 2. Start the services
 ```bash
 docker-compose up --build
-
 ```
-| Servicio | URL |
+
+| Service | URL |
 |---|---|
 | Frontend | http://localhost:5173 |
 | Backend API | http://localhost:8000 |
 | Swagger UI | http://localhost:8000/api/docs/ |
 | Django Admin | http://localhost:8000/admin/ |
 
-> Las migraciones se aplican automáticamente al iniciar el contenedor.
+> Migrations run automatically when the container starts.
 
-Para ver el nombre del contenedor:
+To check the container name:
 ```bash
 docker ps
 ```
 
 ---
 
-## Opción B — Correr en local (sin Docker)
+## Option B — Run locally (without Docker)
 
-### 1. Configurar el proxy del frontend para local
+### 1. Configure the frontend proxy for local
 
-En `frontend/vite.config.js` asegúrate de tener:
+In `frontend/vite.config.js` make sure you have:
 ```js
 server: {
   proxy: {
@@ -63,27 +70,27 @@ server: {
 }
 ```
 
-### 2. Levantar el backend
+### 2. Start the backend
 ```bash
 cd backend
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python manage.py makemigrations users 
-python manage.py makemigrations pets 
-python manage.py makemigrations claims 
+python manage.py makemigrations users
+python manage.py makemigrations pets
+python manage.py makemigrations claims
 python manage.py migrate
 python manage.py runserver
 ```
 
-### 3. Levantar el frontend (otra terminal)
+### 3. Start the frontend (another terminal)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-| Servicio | URL |
+| Service | URL |
 |---|---|
 | Frontend | http://localhost:5173 |
 | Backend API | http://localhost:8000 |
@@ -92,23 +99,23 @@ npm run dev
 
 ---
 
-## Crear superusuario
+## Create Superuser
 
-**Con Docker:**
+**With Docker:**
 ```bash
-# Entrar al contenedor del backend
-docker exec -it <nombre_contenedor_backend> bash
+# Enter the backend container
+docker exec -it <backend_container_name> bash
 
-# Crear superuser
+# Create superuser
 python manage.py createsuperuser
 ```
 
-O directamente sin entrar al contenedor:
+Or directly without entering the container:
 ```bash
-docker exec -it <nombre_contenedor_backend> python manage.py createsuperuser
+docker exec -it <backend_container_name> python manage.py createsuperuser
 ```
 
-**En local:**
+**Locally:**
 ```bash
 cd backend
 source venv/bin/activate
@@ -119,13 +126,13 @@ python manage.py createsuperuser
 
 ## Roles
 
-| Rol | Capacidades |
+| Role | Capabilities |
 |---|---|
-| `CUSTOMER` | Registrar mascotas · Enviar reclamos · Ver historial propio |
-| `SUPPORT` | Ver todo · Aprobar/Rechazar reclamos · Cola de revisión · CRUD Pets y Claims |
-| `ADMIN` | Todo lo anterior + Gestión de usuarios + panel `/admin/` |
+| `CUSTOMER` | Register pets · Submit claims · View own history |
+| `SUPPORT` | View everything · Approve/Reject claims · Review queue · CRUD Pets and Claims |
+| `ADMIN` | Everything above + User management + `/admin/` panel |
 
-> El usuario `SUPPORT` solo puede ser creados desde el panel de administración usando un usuario con rol `ADMIN` (login como ADMIN → Gestión de Usuarios) o desde el panel de ADMIN de Django. El registro público siempre crea un `CUSTOMER`.
+> `SUPPORT` users can only be created from the admin panel by an `ADMIN` user (login as ADMIN → User Management) or from the Django admin panel. Public registration always creates a `CUSTOMER`.
 
 ---
 
@@ -135,3 +142,8 @@ cd backend
 python manage.py test users pets claims --verbosity=2
 # 26 tests · 0 failures
 ```
+
+## Additional documentation
+
+- [README del Backend](./backend/README.md) — modelos, endpoints, tests, reglas de negocio
+- [README del Frontend](./frontend/README.md) — configuración del proxy, estructura, diferencias por rol

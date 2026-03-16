@@ -1,10 +1,10 @@
 # 🐾 PetCare Insurance — Frontend (Vue.js 3)
 
-SPA construida con **Vue 3 + Vite + Pinia + Vue Router**.
+SPA built with **Vue 3 + Vite + Pinia + Vue Router**.
 
 ---
 
-## Inicio rápido
+## Quick Start
 ```bash
 npm install
 npm run dev
@@ -12,11 +12,11 @@ npm run dev
 
 ---
 
-## ⚠️ Configuración del proxy según entorno
+## ⚠️ Proxy Configuration by Environment
 
-El archivo clave es `vite.config.js`. Debes ajustar el `target` según cómo estés corriendo el proyecto:
+The key file is `vite.config.js`. You must adjust the `target` depending on how you are running the project:
 
-### Corriendo en local (sin Docker)
+### Running locally (without Docker)
 ```js
 // vite.config.js
 server: {
@@ -29,65 +29,65 @@ server: {
 }
 ```
 
-### Corriendo con Docker Compose
+### Running with Docker Compose
 ```js
 // vite.config.js
 server: {
   proxy: {
     '/api': {
-      target: 'http://backend:8000',  // nombre del servicio en docker-compose
+      target: 'http://backend:8000',  // service name defined in docker-compose.yml
       changeOrigin: true
     }
   }
 }
 ```
 
-> El nombre `backend` corresponde al servicio definido en `docker-compose.yml`. Si lo cambias allí, actualiza este valor también.
+> The name `backend` matches the service defined in `docker-compose.yml`. If you rename it there, update this value accordingly.
 
 ---
 
-## Estructura
+## Structure
 ```
 src/
-├── api/          → Servicios axios (auth, pets, claims, users)
-├── assets/       → CSS global + tokens de diseño por rol
-├── router/       → Vue Router con guards por rol
-├── stores/       → Pinia: auth store con getters de rol
+├── api/          → Axios services (auth, pets, claims, users)
+├── assets/       → Global CSS + role-based design tokens
+├── router/       → Vue Router with role-based guards
+├── stores/       → Pinia: auth store with role getters
 └── views/
-    ├── LoginView.vue        → Login con JWT
-    ├── RegisterView.vue     → Registro (siempre crea CUSTOMER)
-    ├── DashboardLayout.vue  → Sidebar + layout principal
-    ├── PetsView.vue         → CRUD mascotas
-    ├── ClaimsView.vue       → Reclamos + envío de factura
-    ├── ReviewView.vue       → Cola de revisión (SUPPORT / ADMIN)
-    └── AdminUsersView.vue   → Gestión de usuarios (solo ADMIN)
+    ├── LoginView.vue        → JWT login
+    ├── RegisterView.vue     → Registration (always creates CUSTOMER)
+    ├── DashboardLayout.vue  → Sidebar + main layout
+    ├── PetsView.vue         → Pet CRUD
+    ├── ClaimsView.vue       → Claims + file upload
+    ├── ReviewView.vue       → Review queue (SUPPORT / ADMIN)
+    └── AdminUsersView.vue   → User management (ADMIN only)
 ```
 
 ---
 
-## Diferencias de interfaz por rol
+## UI Differences by Role
 
-### CUSTOMER (sidebar teal)
-- Ve y gestiona solo sus propias mascotas
-- Envía reclamos con archivo adjunto
-- Consulta el historial y estado de sus reclamos
+### CUSTOMER (teal sidebar)
+- Views and manages only their own pets
+- Submits claims with file attachment
+- Tracks the history and status of their own claims
 
-### SUPPORT (sidebar violeta oscuro)
-- Barra de anuncio de modo staff
-- Ve **todas** las mascotas y reclamos
-- Accede a la Cola de Revisión con badge de pendientes
-- Puede aprobar o rechazar reclamos en `IN_REVIEW`
+### SUPPORT (dark purple sidebar)
+- Staff mode announcement bar at the top
+- Views **all** pets and claims
+- Access to the Review Queue with a pending badge
+- Can approve or reject claims in `IN_REVIEW` status
 
-### ADMIN (sidebar violeta oscuro + sección Admin)
-- Todo lo de SUPPORT
-- Menú exclusivo **Gestión de Usuarios**
-- CRUD completo de usuarios: crear CUSTOMER, SUPPORT o ADMIN
-- Activar / desactivar cuentas
+### ADMIN (dark purple sidebar + Admin section)
+- Everything SUPPORT can do
+- Exclusive **User Management** menu
+- Full user CRUD: create CUSTOMER, SUPPORT or ADMIN accounts
+- Activate / deactivate accounts
 
 ---
 
-## Build para producción
+## Production Build
 ```bash
 npm run build
-# Salida en /dist
+# Output in /dist
 ```

@@ -1,93 +1,104 @@
-# 🐾 Pet Insurance Reimbursement Platform — Backend
+# 🐾 Pet Insurance Reimbursement — Backend
 
-Django REST Framework API for managing pet insurance claims and reimbursements.
+REST API built with **Django 5 + Django REST Framework**.
 
 ---
 
-## Tech Stack
+## Stack
 
-| Layer | Technology |
+| Tool | Usage |
 |---|---|
-| Backend | Python 3.12, Django 5, Django REST Framework |
-| Auth | JWT via `djangorestframework-simplejwt` |
-| API Docs | OpenAPI 3.0 via `drf-spectacular` (Swagger UI + ReDoc) |
-| Async | Python `threading` (Celery-ready design) |
-| Database | SQLite (dev) — swap to PostgreSQL for prod |
+| Django 5 | Main framework |
+| Django REST Framework | REST API |
+| SimpleJWT | JWT Authentication |
+| drf-spectacular | OpenAPI / Swagger documentation |
+| SQLite | Database (development) |
 
 ---
 
-## Project Structure
-
+## Structure
 ```
-pet_insurance/        ← Django project config
-users/                ← Custom User model, auth, roles
-pets/                 ← Pet model, CRUD endpoints
-claims/               ← Claim model, workflow, async task
-```
-
----
-
-## Quick Start
-
-```bash
-# 1. Create & activate virtualenv
-python -m venv venv && source venv/bin/activate
-
-# 2. Install dependencies
-pip install django djangorestframework djangorestframework-simplejwt \
-            django-cors-headers Pillow drf-spectacular
-
-# 3. Run migrations
-python manage.py migrate
-
-# 4. Create a superuser (ADMIN role)
-python manage.py createsuperuser
-
-# 5. Start dev server
-python manage.py runserver
+backend/
+├── pet_insurance/   → Project config (settings, urls)
+├── users/           → Custom User model, authentication, roles
+├── pets/            → Pet model, CRUD, permissions
+├── claims/          → Claim model, status workflow, async task
+├── manage.py
+├── requirements.txt
+├── Dockerfile
+└── entrypoint.sh    → Runs migrations and starts the server
 ```
 
 ---
 
-## API Endpoints
+## Main Endpoints
 
 ### Auth
 | Method | URL | Description |
 |---|---|---|
-| POST | `/api/auth/register/` | Register new user |
-| POST | `/api/auth/login/` | Obtain JWT tokens |
+| POST | `/api/auth/register/` | Register (always creates CUSTOMER) |
+| POST | `/api/auth/login/` | Login, returns JWT tokens |
 | POST | `/api/auth/token/refresh/` | Refresh access token |
-| GET/PATCH | `/api/auth/me/` | Current user profile |
+| GET | `/api/auth/me/` | Authenticated user profile |
 
 ### Pets
-| Method | URL | Description | Roles |
-|---|---|---|---|
-| GET | `/api/pets/` | List pets | CUSTOMER (own), SUPPORT/ADMIN (all) |
-| POST | `/api/pets/` | Create pet | CUSTOMER |
-| GET | `/api/pets/{id}/` | Retrieve pet | Owner or SUPPORT/ADMIN |
-| PUT/PATCH | `/api/pets/{id}/` | Update pet | Owner or SUPPORT/ADMIN |
-| DELETE | `/api/pets/{id}/` | Delete pet | Owner or SUPPORT/ADMIN |
+| Method | URL | Description |
+|---|---|---|
+| GET | `/api/pets/` | List pets |
+| POST | `/api/pets/` | Create pet |
+| GET | `/api/pets/{id}/` | Detail |
+| PUT | `/api/pets/{id}/` | Update |
+| DELETE | `/api/pets/{id}/` | Delete |
 
 ### Claims
-| Method | URL | Description | Roles |
-|---|---|---|---|
-| GET | `/api/claims/` | List claims | CUSTOMER (own), SUPPORT/ADMIN (all) |
-| POST | `/api/claims/` | Submit claim (file upload) | CUSTOMER |
-| GET | `/api/claims/{id}/` | Retrieve claim | Owner or SUPPORT/ADMIN |
-| PATCH | `/api/claims/{id}/review/` | Approve / Reject | SUPPORT, ADMIN |
-| GET | `/api/claims/pending-review/` | All IN_REVIEW claims | SUPPORT, ADMIN |
+| Method | URL | Description |
+|---|---|---|
+| GET | `/api/claims/` | List claims |
+| POST | `/api/claims/` | Submit claim (multipart/form-data) |
+| GET | `/api/claims/{id}/` | Detail |
+| PATCH | `/api/claims/{id}/review/` | Approve or reject (SUPPORT/ADMIN) |
+| GET | `/api/claims/pending-review/` | Review queue (SUPPORT/ADMIN) |
 
-**Filter claims by status** (SUPPORT/ADMIN):
+### User Admin
+| Method | URL | Description |
+|---|---|---|
+| GET | `/api/auth/admin/users/` | List users (ADMIN) |
+| POST | `/api/auth/admin/users/` | Create user (ADMIN) |
+| PUT | `/api/auth/admin/users/{id}/` | Update user (ADMIN) |
+| DELETE | `/api/auth/admin/users/{id}/` | Delete user (ADMIN) |
+
+---
+
+## Claim Status Workflow
 ```
-GET /api/claims/?status=IN_REVIEW
+POST /api/claims/
+        │
+        ▼
+   PROCESSING  ← initial status on creation
+        │
+        │  background thread validates:
+        │  • date_of_event within coverage period
+        │  • invoice_date within coverage period
+        │  • SHA-256 hash to detect duplicate invoices
+        │
+   ┌────┴────┐
+   │         │
+IN_REVIEW  REJECTED  ← automatic if validation fails
+   │
+   ├── APPROVED  ← SUPPORT / ADMIN approves
+   └── REJECTED  ← SUPPORT / ADMIN rejects
 ```
 
-### API Documentation
-| URL | Description |
-|---|---|
-| `/api/docs/` | Swagger UI |
-| `/api/redoc/` | ReDoc |
-| `/api/schema/` | Raw OpenAPI JSON/YAML |
+---
+
+## Business Rules
+
+- `coverage_end = coverage_start + 365 days` (auto-calculated on save)
+- `date_of_event` and `invoice_date` must fall within the pet's active coverage period
+- Duplicate invoices detected via **SHA-256** file hash before saving
+- Customers can only manage their own pets and claims
+- Only claims with status `IN_REVIEW` can be approved or rejected
+- The reviewer's email is recorded on every approval or rejection
 
 ---
 
@@ -98,87 +109,27 @@ GET /api/claims/?status=IN_REVIEW
 | Manage own pets | ✅ | ✅ | ✅ |
 | View all pets | ❌ | ✅ | ✅ |
 | Submit claims | ✅ | ❌ | ✅ |
-| View own claims | ✅ | ✅ | ✅ |
 | View all claims | ❌ | ✅ | ✅ |
-| Approve/Reject claims | ❌ | ✅ | ✅ |
-| Access admin panel | ❌ | ❌ | ✅ |
-
----
-
-## Claim Workflow
-
-```
-POST /api/claims/
-        │
-        ▼
-   PROCESSING  ←── Background thread validates:
-        │            • invoice_date within coverage
-        │            • date_of_event within coverage
-        │
-   ┌────┴────┐
-   │         │
-IN_REVIEW  REJECTED  ← (auto-rejected if validation fails)
-   │
-   ├── PATCH /api/claims/{id}/review/ {"status": "APPROVED"}
-   │        → APPROVED
-   │
-   └── PATCH /api/claims/{id}/review/ {"status": "REJECTED"}
-            → REJECTED
-```
-
-### Business Rules Enforced
-- `coverage_end = coverage_start + 365 days` (auto-computed)
-- `date_of_event` must be within the pet's active coverage period
-- `invoice_date` must be within the pet's active coverage period
-- Duplicate invoice detection via **SHA-256 file hash**
-- Customers can only submit claims for their own pets
-- Only `IN_REVIEW` claims can be approved/rejected by support
+| Approve / Reject claims | ❌ | ✅ | ✅ |
+| Manage users | ❌ | ❌ | ✅ |
+| Django Admin panel | ❌ | ❌ | ✅ |
 
 ---
 
 ## Running Tests
-
 ```bash
 python manage.py test users pets claims --verbosity=2
-```
-
-**26 tests** covering:
-- Auth: register, login, token, me endpoint
-- Pets: CRUD, ownership isolation, coverage computation
-- Claims: submission, duplicate detection, coverage validation,
-          role-based visibility, review workflow, async task trigger
-
----
-
-## Environment Variables (production)
-
-```env
-SECRET_KEY=your-secret-key
-DEBUG=False
-DATABASE_URL=postgresql://user:pass@host/db
-ALLOWED_HOSTS=yourdomain.com
+# 26 tests · 0 failures
 ```
 
 ---
 
-## Django Admin
+## API Documentation
 
-Access at `/admin/` with a superuser account. Full management of Users, Pets, and Claims.
+With the server running:
 
----
-
-## Async Processing Notes
-
-The background task (`claims/tasks.py`) uses Python `threading` for simplicity.
-In a production setup, replace with **Celery + Redis/RabbitMQ**:
-
-```python
-# claims/tasks.py (Celery version)
-from celery import shared_task
-
-@shared_task
-def process_claim(claim_id: int):
-    ...
-```
-
-The task logic and state machine remain identical — only the execution mechanism changes.
+| Tool | URL |
+|---|---|
+| Swagger UI | http://localhost:8000/api/docs/ |
+| ReDoc | http://localhost:8000/api/redoc/ |
+| OpenAPI Schema | http://localhost:8000/api/schema/ |
