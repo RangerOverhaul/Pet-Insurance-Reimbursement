@@ -1,38 +1,50 @@
 from rest_framework import serializers
-from .models import Claim
+from .models import Claim, BANK_CHOICES
 from pets.models import Pet
 
 
 class ClaimSerializer(serializers.ModelSerializer):
     pet_name = serializers.CharField(source="pet.name", read_only=True)
     owner_email = serializers.EmailField(source="owner.email", read_only=True)
+    owner_full_name = serializers.CharField(source="owner.full_name", read_only=True)
+    owner_document = serializers.CharField(source="owner.document_number", read_only=True)
+    owner_phone = serializers.CharField(source="owner.phone_number", read_only=True)
+    bank_display = serializers.CharField(source="get_bank_display", read_only=True)
+    reviewed_by_email = serializers.SerializerMethodField()
 
     class Meta:
         model = Claim
         fields = [
-            "id", "owner", "owner_email", "pet", "pet_name",
-            "invoice", "invoice_date", "date_of_event",
-            "amount", "status", "review_notes",
+            "id", "owner", "owner_email", "owner_full_name", "owner_document", "owner_phone",
+            "pet", "pet_name",
+            "invoice", "invoice_date", "date_of_event", "amount",
+            "bank", "bank_display", "account_number",
+            "status", "review_notes", "reviewed_by", "reviewed_by_email",
             "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "owner", "status", "review_notes", "created_at", "updated_at"]
+        read_only_fields = [
+            "id", "owner", "status", "review_notes",
+            "reviewed_by", "created_at", "updated_at",
+        ]
+
+    def get_reviewed_by_email(self, obj):
+        if obj.reviewed_by:
+            return obj.reviewed_by.email
+        return None
 
     def validate(self, attrs):
         request = self.context["request"]
         pet: Pet = attrs.get("pet") or (self.instance.pet if self.instance else None)
 
-        # Ownership: customer can only claim for their own pets
         if pet and pet.owner != request.user:
             raise serializers.ValidationError({"pet": "You do not own this pet."})
 
-        # Validate date_of_event within coverage
         date_of_event = attrs.get("date_of_event")
         if pet and date_of_event and not pet.is_date_covered(date_of_event):
             raise serializers.ValidationError(
                 {"date_of_event": "Date of event is outside the pet's coverage period."}
             )
 
-        # Validate invoice_date within coverage
         invoice_date = attrs.get("invoice_date")
         if pet and invoice_date and not pet.is_date_covered(invoice_date):
             raise serializers.ValidationError(
@@ -42,14 +54,11 @@ class ClaimSerializer(serializers.ModelSerializer):
         return attrs
 
     def validate_invoice(self, value):
-        """Compute hash and check for duplicates before saving."""
         import hashlib
         hasher = hashlib.sha256()
         for chunk in value.chunks():
             hasher.update(chunk)
         file_hash = hasher.hexdigest()
-
-        # Seek back so model.save() can read the file again
         value.seek(0)
 
         if Claim.objects.filter(invoice_hash=file_hash).exists():
@@ -57,14 +66,12 @@ class ClaimSerializer(serializers.ModelSerializer):
                 "This invoice has already been submitted (duplicate file detected)."
             )
 
-        # Attach hash to value for use in model.save()
         value._computed_hash = file_hash
         return value
 
     def create(self, validated_data):
         invoice = validated_data["invoice"]
         claim = super().create(validated_data)
-        # Assign the pre-computed hash to avoid double-hashing
         if hasattr(invoice, "_computed_hash"):
             claim.invoice_hash = invoice._computed_hash
             claim.save(update_fields=["invoice_hash"])
@@ -72,8 +79,6 @@ class ClaimSerializer(serializers.ModelSerializer):
 
 
 class ClaimReviewSerializer(serializers.ModelSerializer):
-    """Used by SUPPORT/ADMIN to approve or reject a claim."""
-
     class Meta:
         model = Claim
         fields = ["status", "review_notes"]

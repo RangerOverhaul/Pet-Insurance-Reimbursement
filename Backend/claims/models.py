@@ -4,6 +4,15 @@ from users.models import User
 from pets.models import Pet
 
 
+BANK_CHOICES = [
+    ("BANCO_NORTE", "Banco Norte"),
+    ("CREDIFUTURO", "CrediFuturo"),
+    ("BANCO_CAPITAL", "Banco Capital"),
+    ("FINANZAS_DEL_SUR", "Finanzas del Sur"),
+    ("EUROBANK_LOCAL", "Eurobank Local"),
+]
+
+
 def invoice_upload_path(instance, filename):
     return f"invoices/{instance.owner.id}/{filename}"
 
@@ -18,13 +27,28 @@ class Claim(models.Model):
 
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="claims")
     pet = models.ForeignKey(Pet, on_delete=models.CASCADE, related_name="claims")
+
+    # Factura
     invoice = models.FileField(upload_to=invoice_upload_path)
     invoice_hash = models.CharField(max_length=64, unique=True, editable=False)
     invoice_date = models.DateField()
     date_of_event = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    # Datos bancarios para el reembolso
+    bank = models.CharField(max_length=30, choices=BANK_CHOICES)
+    account_number = models.CharField(max_length=50)
+
+    # Estado y revisión
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.SUBMITTED)
     review_notes = models.TextField(blank=True, default="")
+    reviewed_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="reviewed_claims"
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
