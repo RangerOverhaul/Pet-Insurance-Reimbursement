@@ -5,12 +5,14 @@ from .serializers import RegisterSerializer, UserSerializer
 
 
 class RegisterView(generics.CreateAPIView):
+    """View for registering a new user."""
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
 
 class MeView(generics.RetrieveUpdateAPIView):
+    """View for retrieving and updating the current user."""
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -19,6 +21,7 @@ class MeView(generics.RetrieveUpdateAPIView):
 
 
 class UserListView(generics.ListAPIView):
+    """View for listing all users."""
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAdminUser]
     queryset = User.objects.all()
