@@ -9,12 +9,6 @@ Pet Insurance Reimbursement/
 ├── docker-compose.yml
 └── README.md
 ```
-
-## Additional Documentation
-
-- [Backend README](./backend/README.md) — models, endpoints, tests, business rules
-- [Frontend README](./frontend/README.md) — proxy setup, structure, role-based UI differences
-
 ---
 
 ## Option A — Run with Docker Compose (recommended)
