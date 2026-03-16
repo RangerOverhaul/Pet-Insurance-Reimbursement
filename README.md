@@ -10,21 +10,6 @@ Pet Insurance Reimbursement/
 └── README.md
 ```
 
----
-
-## Credenciales de prueba
-
-Ya existe un superusuario (rol **ADMIN**) creado:
-
-| Campo | Valor |
-|---|---|
-| Email | `nylo@test.com` |
-| Contraseña | `UserTest2026*` |
-
-> Si necesitas crear otro superusuario, ver la sección [Crear superusuario](#crear-superusuario).
-
----
-
 ## Opción A — Correr con Docker Compose (recomendado)
 
 ### 1. Configurar el proxy del frontend para Docker
@@ -44,8 +29,8 @@ server: {
 ### 2. Levantar los servicios
 ```bash
 docker-compose up --build
-```
 
+```
 | Servicio | URL |
 |---|---|
 | Frontend | http://localhost:5173 |
@@ -53,10 +38,7 @@ docker-compose up --build
 | Swagger UI | http://localhost:8000/api/docs/ |
 | Django Admin | http://localhost:8000/admin/ |
 
-### 3. Aplicar migraciones (primera vez)
-```bash
-docker exec -it <nombre_contenedor_backend> python manage.py migrate
-```
+> Las migraciones se aplican automáticamente al iniciar el contenedor.
 
 Para ver el nombre del contenedor:
 ```bash
@@ -87,6 +69,9 @@ cd backend
 python -m venv venv
 source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+python manage.py makemigrations users 
+python manage.py makemigrations pets 
+python manage.py makemigrations claims 
 python manage.py migrate
 python manage.py runserver
 ```
@@ -108,8 +93,6 @@ npm run dev
 ---
 
 ## Crear superusuario
-
-Si necesitas crear un nuevo usuario ADMIN adicional:
 
 **Con Docker:**
 ```bash
@@ -142,7 +125,7 @@ python manage.py createsuperuser
 | `SUPPORT` | Ver todo · Aprobar/Rechazar reclamos · Cola de revisión · CRUD Pets y Claims |
 | `ADMIN` | Todo lo anterior + Gestión de usuarios + panel `/admin/` |
 
-> Los usuarios `SUPPORT` y `ADMIN` solo pueden ser creados desde el panel de administración (login como ADMIN → Gestión de Usuarios). El registro público siempre crea un `CUSTOMER`.
+> El usuario `SUPPORT` solo puede ser creados desde el panel de administración usando un usuario con rol `ADMIN` (login como ADMIN → Gestión de Usuarios) o desde el panel de ADMIN de Django. El registro público siempre crea un `CUSTOMER`.
 
 ---
 
